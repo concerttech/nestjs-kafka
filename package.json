@@ -1,7 +1,7 @@
 {
-  "name": "@rob3000/nestjs-kafka",
-  "version": "1.4.1",
-  "description": "KafkaJS integration with NestJS",
+  "name": "@xst/nestjs-kafka",
+  "version": "0.0.2",
+  "description": "KafkaJS integration with NestJS, cloned from @rob3000/nestjs-kafka@1.4.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rob3000/nestjs-kafka.git"
+    "url": "git+https://github.com/concerttech/nestjs-kafka.git"
   },
   "keywords": [
     "nestjs",
@@ -26,36 +26,36 @@
   "author": "Rob Shepherd",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rob3000/nestjs-kafka/issues"
+    "url": "https://github.com/concerttech/nestjs-kafka/issues"
   },
-  "homepage": "https://github.com/rob3000/nestjs-kafka#readme",
+  "homepage": "https://github.com/concerttech/nestjs-kafka#readme",
   "dependencies": {
-    "@kafkajs/confluent-schema-registry": "^2.0.1",
-    "@nestjs/common": "^7.6.17",
-    "@nestjs/core": "^7.6.17",
-    "@nestjs/microservices": "^7.6.17",
-    "kafkajs": "^1.15.0",
+    "@kafkajs/confluent-schema-registry": "^3.3.0",
+    "@nestjs/common": "^9.3.9",
+    "@nestjs/core": "^9.3.9",
+    "@nestjs/microservices": "^9.3.9",
+    "kafkajs": "^2.2.3",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^6.6.7"
+    "rxjs": "^7.8.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.3",
-    "@babel/plugin-proposal-decorators": "^7.10.5",
-    "@babel/preset-env": "^7.14.4",
-    "@babel/preset-typescript": "^7.10.4",
-    "@nestjs/testing": "^7.6.17",
-    "@types/jest": "^26.0.23",
-    "@types/node": "^14.17.2",
-    "@typescript-eslint/eslint-plugin": "^4.26.0",
-    "@typescript-eslint/parser": "^4.26.0",
-    "babel-jest": "^26.6.3",
-    "eslint": "^7.27.0",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-import": "^2.23.4",
-    "jest": "^26.6.3",
-    "prettier": "^2.3.0",
-    "ts-jest": "^26.5.6",
-    "typescript": "^4.3.2"
+    "@babel/core": "^7.21.0",
+    "@babel/plugin-proposal-decorators": "^7.21.0",
+    "@babel/preset-env": "^7.20.2",
+    "@babel/preset-typescript": "^7.21.0",
+    "@nestjs/testing": "^9.3.9",
+    "@types/jest": "^29.4.0",
+    "@types/node": "^18.14.1",
+    "@typescript-eslint/eslint-plugin": "^5.53.0",
+    "@typescript-eslint/parser": "^5.53.0",
+    "babel-jest": "^29.4.3",
+    "eslint": "^8.34.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-import": "^2.27.5",
+    "jest": "^29.4.3",
+    "prettier": "^2.8.4",
+    "ts-jest": "^29.0.5",
+    "typescript": "^4.9.5"
   },
   "jest": {
     "moduleFileExtensions": [

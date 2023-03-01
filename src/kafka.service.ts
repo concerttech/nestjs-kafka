@@ -1,7 +1,7 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import {
   Consumer,
-  Kafka,
+  Kafka as _Kafka,
   Producer,
   RecordMetadata,
   Admin,
@@ -15,7 +15,6 @@ import { KafkaLogger } from "@nestjs/microservices/helpers/kafka-logger";
 import { KafkaResponseDeserializer } from "./deserializer/kafka-response.deserializer";
 import { KafkaRequestSerializer } from "./serializer/kafka-request.serializer";
 import { KafkaModuleOption, KafkaMessageSend, KafkaTransaction } from './interfaces';
-
 import {
   SUBSCRIBER_MAP,
   SUBSCRIBER_OBJECT_MAP
@@ -24,7 +23,7 @@ import {
 @Injectable()
 export class KafkaService implements OnModuleInit, OnModuleDestroy {
 
-  private kafka: Kafka;
+  private kafka: _Kafka;
   private producer: Producer;
   private consumer: Consumer;
   private admin: Admin;
@@ -45,7 +44,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       consumer: consumerConfig,
       producer: producerConfig,
     } = options;
-
+    const { Kafka } = require('kafkajs');
     this.kafka = new Kafka({
       ...client,
       logCreator: KafkaLogger.bind(null, this.logger)
