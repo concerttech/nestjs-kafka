@@ -8,6 +8,7 @@ import {
   SeekEntry,
   TopicPartitionOffsetAndMetadata,
   Offsets,
+  ConsumerCrashEvent,
 } from 'kafkajs';
 import { Deserializer, Serializer } from "@nestjs/microservices";
 import { Logger } from "@nestjs/common/services/logger.service";
@@ -20,6 +21,16 @@ import {
   SUBSCRIBER_OBJECT_MAP
 } from './kafka.decorator';
 
+export type Status = {
+  consumer: {
+    connect: boolean,
+    groupjoin: boolean,
+  },
+  producer: {
+    connect: boolean,
+  },
+}
+
 @Injectable()
 export class KafkaService implements OnModuleInit, OnModuleDestroy {
 
@@ -31,6 +42,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
   private serializer: Serializer;
   private autoConnect: boolean;
   private options: KafkaModuleOption['options'];
+  private status: Status = { consumer: { connect: false, groupjoin: false }, producer: { connect: false } };
 
   protected topicOffsets: Map<string, (SeekEntry & { high: string; low: string })[]> = new Map();
   
@@ -51,21 +63,52 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     });
 
     const { groupId } = consumerConfig;
-    const consumerOptions = Object.assign(
-      {
-        groupId: this.getGroupIdSuffix(groupId),
-      },
-      consumerConfig
-    );
+    const consumerOptions = {
+      groupId: this.getGroupIdSuffix(groupId),
+      ...consumerConfig
+    };
     
     this.autoConnect = options.autoConnect ?? true;
     this.consumer = this.kafka.consumer(consumerOptions);
+    const { CONNECT, GROUP_JOIN, DISCONNECT, CRASH, STOP, HEARTBEAT } = this.consumer.events;
+    this.consumer.on(CONNECT, () => this.setConsumerConnectStatus());
+    this.consumer.on(GROUP_JOIN, () => this.setConsumerGroupJoinStatus());
+    this.consumer.on(DISCONNECT, () => this.setConsumerDisconnectStatus());
+    this.consumer.on(CRASH, (event) => this.setConsumerCrashStatus(event));
+    this.consumer.on(STOP, () => this.setConsumerStopStatus());
+
     this.producer = this.kafka.producer(producerConfig);
+    this.producer.on(this.producer.events.CONNECT, () => this.setProducerConnectStatus());
+    this.producer.on(this.producer.events.DISCONNECT, () => this.setProducerDisconnectStatus());
     this.admin = this.kafka.admin();
 
     this.initializeDeserializer(options);
     this.initializeSerializer(options);
     this.options = options;
+  }
+
+  private setConsumerConnectStatus(): void {
+    this.status.consumer.connect = true
+  }
+  private setConsumerGroupJoinStatus(): void {
+    this.status.consumer.groupjoin = true
+  }
+  private setConsumerStopStatus(): void {
+    this.status.consumer.groupjoin = false
+  }
+  private setConsumerDisconnectStatus(): void {
+    this.status.consumer.connect = false
+  }
+  private setConsumerCrashStatus(event: ConsumerCrashEvent): void {
+    this.status.consumer = { connect: event?.payload?.restart || false, groupjoin: false }
+  }
+
+  private setProducerConnectStatus(): void {
+    this.status.producer.connect = true;
+  }
+
+  private setProducerDisconnectStatus(): void {
+    this.status.producer.connect = false;
   }
 
   async onModuleInit(): Promise<void> {
@@ -102,7 +145,18 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     await this.consumer.disconnect();
     await this.admin.disconnect();
   }
+  getHealthyStatus(consumer: boolean, producer: boolean): boolean {
+    if (consumer && this.status.consumer.connect && this.status.consumer.groupjoin) {
+      return producer ? this.status.producer.connect : true;
+    }
+    return false;
+  }
 
+  getReadyStatus(consumer: boolean, producer: boolean): boolean {
+    if (consumer && this.status.consumer.connect) {
+      return producer ? this.status.producer.connect : true;
+    }
+  }
   /**
    * Gets the high, low and partitions of a topic.
    */
